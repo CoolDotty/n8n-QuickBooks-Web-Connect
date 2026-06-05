@@ -108,12 +108,23 @@ export class QuickBooksDesktopTrigger implements INodeType {
 		const serverVersion = this.getNodeParameter('serverVersion', 'QuickBooksDesktop-n8n-Bridge/0.1') as string;
 		const readOnly = this.getNodeParameter('readOnly', false) as boolean;
 
-		const body =
-			typeof req.body === 'string'
-				? req.body
-				: req.body?.toString('utf-8') ?? '';
+		// n8n body-parser may convert XML to object; try to get raw body first
+		let bodyStr = '';
+		const rawBody = (req as any).rawBody;
+		if (typeof rawBody === 'string') {
+			bodyStr = rawBody;
+		} else if (Buffer.isBuffer(rawBody)) {
+			bodyStr = rawBody.toString('utf-8');
+		} else if (Buffer.isBuffer(req.body)) {
+			bodyStr = req.body.toString('utf-8');
+		} else if (typeof req.body === 'string') {
+			bodyStr = req.body;
+		} else if (req.body && typeof req.body === 'object') {
+			// Body was parsed by middleware; try to get raw via rawBody or fallback
+			bodyStr = (req as any).rawBody?.toString?.('utf-8') ?? '';
+		}
 
-		console.log('QBWC webhook body type:', typeof req.body, 'length:', body.length, 'preview:', body.substring(0, 200));
+		console.log('QBWC webhook body type:', typeof req.body, 'rawBody:', typeof (req as any).rawBody, 'length:', bodyStr.length, 'preview:', bodyStr.substring(0, 200));
 
 		let parsedOperation = '';
 		let parsedArgs: Record<string, unknown> = {};
@@ -130,7 +141,7 @@ export class QuickBooksDesktopTrigger implements INodeType {
 		});
 
 		const router = createSoapRouter(handlers);
-		const response = await router.handle(body);
+		const response = await router.handle(bodyStr);
 
 		const result: IWebhookResponseData = {
 			workflowData: [this.helpers.returnJsonArray([{ body: response }])],
