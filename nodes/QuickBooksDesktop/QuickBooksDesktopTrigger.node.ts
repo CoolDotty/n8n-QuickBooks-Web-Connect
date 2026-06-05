@@ -34,6 +34,8 @@ export class QuickBooksDesktopTrigger implements INodeType {
 		defaults: {
 			name: 'QuickBooks Desktop Web Connect Trigger',
 		},
+		eventTriggerDescription: 'Waiting for QuickBooks Web Connector to poll',
+		activationMessage: 'You can now configure QuickBooks Web Connector to poll your production webhook URL.',
 		usableAsTool: true,
 		inputs: [],
 		outputs: [NodeConnectionTypes.Main],
