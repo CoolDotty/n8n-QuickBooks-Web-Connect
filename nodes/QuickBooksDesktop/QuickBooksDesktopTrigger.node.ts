@@ -28,7 +28,7 @@ export class QuickBooksDesktopTrigger implements INodeType {
 		name: 'quickBooksDesktopTrigger',
 		icon: 'file:quickBooksDesktop.svg',
 		group: ['trigger'],
-		version: [1],
+		version: 1,
 		subtitle: '={{$parameter["path"]}}',
 		description: 'QuickBooks Web Connector SOAP endpoint',
 		defaults: {
