@@ -1,9 +1,3 @@
-# ⚠️ DEPRECATED
-
-**This project is deprecated in favor of an n8n custom trigger node.** Please use the official n8n integration instead.
-
----
-
 # n8n-nodes-quickbooks-web-connector
 
 n8n community node for integrating **QuickBooks Desktop** (US/CA/UK) with n8n via the [QuickBooks Web Connector](https://developer.intuit.com/app/developer/qbdesktop/docs/get-started/get-started-with-quickbooks-web-connector).
