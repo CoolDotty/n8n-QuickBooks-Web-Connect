@@ -1,0 +1,7 @@
+{
+	"hidden": true,
+	"alias": ["QuickBooks", "Web Connector", "SOAP", "QBWC", "Desktop"],
+	"subcategories": {
+		"Core Nodes": ["Trigger Nodes"]
+	}
+}

@@ -1,0 +1,12 @@
+dist
+node_modules
+*.tsbuildinfo
+.env
+.env.*
+*.tgz
+.DS_Store
+Thumbs.db
+.crush
+.crush.json
+.agents
+nul

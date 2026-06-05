@@ -1,0 +1,7 @@
+{
+	"hidden": true,
+	"alias": ["QuickBooks", "Web Connector", "QBXML", "QBWC", "Desktop"],
+	"subcategories": {
+		"Core Nodes": ["Output"]
+	}
+}
