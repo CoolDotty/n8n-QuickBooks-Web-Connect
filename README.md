@@ -105,7 +105,7 @@ Both nodes require these credentials. The username/password must match what you 
 
 - [n8n community nodes documentation](https://docs.n8n.io/integrations/community-nodes/)
 - [QuickBooks Web Connector documentation](https://developer.intuit.com/app/developer/qbdesktop/docs/get-started/get-started-with-quickbooks-web-connector)
-- [QBXML On-Screen Reference](https://developer.intuit.com/app/developer/qbdesktop/docs/qbxml/qbxml-on-screen-reference)
+- [QuickBooks Web Connect Pro Guide](https://static.developer.intuit.com/qbSDK-current/doc/pdf/QBWC_proguide.pdf)
 
 ## Version history
 
