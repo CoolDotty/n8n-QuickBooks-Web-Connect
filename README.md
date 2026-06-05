@@ -1,6 +1,12 @@
+# ⚠️ DEPRECATED
+
+**This project is deprecated in favor of an n8n custom trigger node.** Please use the official n8n integration instead.
+
+---
+
 # n8n-nodes-quickbooks-web-connector
 
-n8n community node for integrating **QuickBooks Desktop** (US/CA/UK) with n8n via the [QuickBooks Web Connector](https://developer.intuit.com/app/developer/qbdesktop/docs/get-started/get-started-with-quickbooks-web-connector). Exposes a SOAP endpoint as a trigger node that QuickBooks Web Connector polls for QBXML jobs, plus an action node for enqueueing jobs and generating `.qwc` configuration files.
+n8n community node for integrating **QuickBooks Desktop** (US/CA/UK) with n8n via the [QuickBooks Web Connector](https://developer.intuit.com/app/developer/qbdesktop/docs/get-started/get-started-with-quickbooks-web-connector).
 
 [n8n](https://n8n.io/) is a [fair-code licensed](https://docs.n8n.io/sustainable-use-license/) workflow automation platform.
 
@@ -12,7 +18,7 @@ Follow the [installation guide](https://docs.n8n.io/integrations/community-nodes
 
 ### QuickBooks Desktop Web Connect Trigger
 
-A webhook-based trigger node that implements the QuickBooks Web Connector SOAP protocol. QuickBooks Web Connector polls this endpoint to fetch pending QBXML jobs and deliver responses back. Every time QuickBooks returns a response, the trigger emits a workflow item with the response XML and job metadata.
+A webhook-based trigger node that implements the QuickBooks Web Connector SOAP protocol. QuickBooks Web Connector polls this endpoint to fetch pending QBXML jobs and deliver responses back. Every workflow execution is triggered by a QBWC poll.
 
 **Output fields:**
 
