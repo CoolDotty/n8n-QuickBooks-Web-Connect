@@ -17,6 +17,7 @@
  */
 
 const TNS = 'http://developer.intuit.com/';
+const MAX_BODY_SIZE = 1024 * 1024; // 1 MB
 
 type Handler = (args: Record<string, unknown>) => Promise<unknown>;
 
@@ -32,6 +33,9 @@ interface ParsedRequest {
 export function createSoapRouter(handlers: Record<string, Handler>): SoapRouter {
 	return {
 		async handle(xml: string): Promise<string> {
+			if (Buffer.byteLength(xml, 'utf-8') > MAX_BODY_SIZE) {
+				return soapFault('Client', 'Request body exceeds 1 MB limit');
+			}
 			let parsed: ParsedRequest;
 			try {
 				parsed = parseRequest(xml);

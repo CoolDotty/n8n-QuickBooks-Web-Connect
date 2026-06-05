@@ -27,12 +27,41 @@ export interface QueuedResponse {
 const jobs = new Map<string, QuickBooksDesktopJob>();
 const pendingResponses: QueuedResponse[] = [];
 const MAX_RESPONSES_BUFFER = 200;
+const MAX_JOBS = 5000;
+const COMPLETED_TTL_MS = 24 * 60 * 60 * 1000;
+const MAX_QBXML_LENGTH = 10 * 1024 * 1024;
+
+function purgeOldJobs(): void {
+	const now = Date.now();
+	for (const [id, job] of jobs.entries()) {
+		if (
+			(job.status === 'completed' || job.status === 'error') &&
+			now - job.updatedAt > COMPLETED_TTL_MS
+		) {
+			jobs.delete(id);
+		}
+	}
+	if (jobs.size > MAX_JOBS) {
+		const all = [...jobs.values()];
+		all.sort((a, b) => a.updatedAt - b.updatedAt);
+		for (const job of all) {
+			if (jobs.size <= MAX_JOBS) break;
+			if (job.status === 'completed' || job.status === 'error') {
+				jobs.delete(job.id);
+			}
+		}
+	}
+}
 
 export function enqueueJob(params: {
 	qbxml: string;
 	readOnly?: boolean;
 	priority?: number;
 }): QuickBooksDesktopJob {
+	if (params.qbxml.length > MAX_QBXML_LENGTH) {
+		throw new Error('QBXML exceeds maximum length of 10MB');
+	}
+	purgeOldJobs();
 	const id = crypto.randomBytes(12).toString('hex');
 	const now = Date.now();
 	const job: QuickBooksDesktopJob = {
@@ -48,7 +77,10 @@ export function enqueueJob(params: {
 	return job;
 }
 
-export function dequeueNextJob(sessionTicket: string, readOnly: boolean): QuickBooksDesktopJob | null {
+export function dequeueNextJob(
+	sessionTicket: string,
+	readOnly: boolean,
+): QuickBooksDesktopJob | null {
 	const candidates: QuickBooksDesktopJob[] = [];
 
 	for (const job of jobs.values()) {
@@ -86,6 +118,7 @@ export function completeJob(
 	job.message = message;
 	job.updatedAt = Date.now();
 
+	purgeOldJobs();
 	return job;
 }
 

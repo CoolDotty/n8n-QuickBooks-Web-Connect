@@ -122,7 +122,8 @@ export class QuickBooksDesktop implements INodeType {
 						operation: ['enqueue'],
 					},
 				},
-				description: 'Whether this job only reads data (will be allowed even when the trigger is in read-only mode)',
+				description:
+					'Whether this job only reads data (will be allowed even when the trigger is in read-only mode)',
 			},
 			{
 				displayName: 'Priority',
@@ -237,6 +238,10 @@ export class QuickBooksDesktop implements INodeType {
 	async execute(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {
 		const items = this.getInputData();
 		const returnData: INodeExecutionData[] = [];
+		const MAX_QBXML_LENGTH = 10 * 1024 * 1024;
+		const MAX_JOB_ID_LENGTH = 64;
+		const MAX_STRING_LENGTH = 1024;
+		const MAX_URL_LENGTH = 2048;
 
 		for (let i = 0; i < items.length; i++) {
 			try {
@@ -248,6 +253,13 @@ export class QuickBooksDesktop implements INodeType {
 				if (resource === 'job') {
 					if (operation === 'enqueue') {
 						const qbxml = this.getNodeParameter('qbxml', i) as string;
+						if (qbxml.length > MAX_QBXML_LENGTH) {
+							throw new NodeOperationError(
+								this.getNode(),
+								'QBXML exceeds maximum length of 10 MB',
+								{ itemIndex: i },
+							);
+						}
 						const readOnly = this.getNodeParameter('jobReadOnly', i) as boolean;
 						const priority = this.getNodeParameter('jobPriority', i) as number;
 
@@ -261,13 +273,18 @@ export class QuickBooksDesktop implements INodeType {
 						};
 					} else if (operation === 'getStatus') {
 						const jobId = this.getNodeParameter('jobId', i) as string;
-						const job = getJob(jobId);
-						if (!job) {
+						if (jobId.length > MAX_JOB_ID_LENGTH) {
 							throw new NodeOperationError(
 								this.getNode(),
-								`Job not found: ${jobId}`,
+								'Job ID exceeds maximum length of 64 characters',
 								{ itemIndex: i },
 							);
+						}
+						const job = getJob(jobId);
+						if (!job) {
+							throw new NodeOperationError(this.getNode(), `Job not found: ${jobId}`, {
+								itemIndex: i,
+							});
 						}
 						responseData = {
 							jobId: job.id,
@@ -292,6 +309,34 @@ export class QuickBooksDesktop implements INodeType {
 						const appUrl = this.getNodeParameter('appUrl', i) as string;
 						const appDescription = this.getNodeParameter('appDescription', i) as string;
 						const appSupport = this.getNodeParameter('appSupport', i) as string;
+						if (appName.length > MAX_STRING_LENGTH) {
+							throw new NodeOperationError(
+								this.getNode(),
+								'App Name exceeds maximum length of 1024 characters',
+								{ itemIndex: i },
+							);
+						}
+						if (appUrl.length > MAX_URL_LENGTH) {
+							throw new NodeOperationError(
+								this.getNode(),
+								'App URL exceeds maximum length of 2048 characters',
+								{ itemIndex: i },
+							);
+						}
+						if (appDescription.length > MAX_STRING_LENGTH) {
+							throw new NodeOperationError(
+								this.getNode(),
+								'App Description exceeds maximum length of 1024 characters',
+								{ itemIndex: i },
+							);
+						}
+						if (appSupport.length > MAX_URL_LENGTH) {
+							throw new NodeOperationError(
+								this.getNode(),
+								'App Support URL exceeds maximum length of 2048 characters',
+								{ itemIndex: i },
+							);
+						}
 						const interval = this.getNodeParameter('interval', i) as number;
 						const configReadOnly = this.getNodeParameter('configReadOnly', i) as boolean;
 

@@ -6,13 +6,9 @@ import type {
 	IWebhookFunctions,
 	IWebhookResponseData,
 } from 'n8n-workflow';
-import { NodeConnectionTypes } from 'n8n-workflow';
+import { NodeConnectionTypes, NodeOperationError } from 'n8n-workflow';
 import { createSoapRouter } from './lib/soap';
-import {
-	createSession,
-	validateTicket,
-	closeSession,
-} from './lib/session';
+import { createSession, validateTicket, closeSession } from './lib/session';
 import {
 	dequeueNextJob,
 	completeJob,
@@ -35,7 +31,8 @@ export class QuickBooksDesktopTrigger implements INodeType {
 			name: 'QuickBooks Desktop Web Connect Trigger',
 		},
 		eventTriggerDescription: 'Waiting for QuickBooks Web Connector to poll',
-		activationMessage: 'You can now configure QuickBooks Web Connector to poll your production webhook URL.',
+		activationMessage:
+			'You can now configure QuickBooks Web Connector to poll your production webhook URL.',
 		usableAsTool: true,
 		inputs: [],
 		outputs: [NodeConnectionTypes.Main],
@@ -87,7 +84,8 @@ export class QuickBooksDesktopTrigger implements INodeType {
 				name: 'readOnly',
 				type: 'boolean',
 				default: false,
-				description: 'Whether to block write operations — when enabled, outbound jobs that modify QuickBooks data are silently dropped',
+				description:
+					'Whether to block write operations — when enabled, outbound jobs that modify QuickBooks data are silently dropped',
 			},
 		],
 	};
@@ -105,12 +103,15 @@ export class QuickBooksDesktopTrigger implements INodeType {
 		const credentials = await this.getCredentials('quickBooksDesktopApi');
 		const expectedUsername = credentials.username as string;
 		const expectedPassword = credentials.password as string;
-		const serverVersion = this.getNodeParameter('serverVersion', 'QuickBooksDesktop-n8n-Bridge/0.1') as string;
+		const serverVersion = this.getNodeParameter(
+			'serverVersion',
+			'QuickBooksDesktop-n8n-Bridge/0.1',
+		) as string;
 		const readOnly = this.getNodeParameter('readOnly', false) as boolean;
 
 		// n8n body-parser may convert XML to object; try to get raw body first
 		let bodyStr = '';
-		const rawBody = (req as any).rawBody;
+		const rawBody = (req as Record<string, unknown>).rawBody;
 		if (typeof rawBody === 'string') {
 			bodyStr = rawBody;
 		} else if (Buffer.isBuffer(rawBody)) {
@@ -121,7 +122,13 @@ export class QuickBooksDesktopTrigger implements INodeType {
 			bodyStr = req.body;
 		} else if (req.body && typeof req.body === 'object') {
 			// Body was parsed by middleware; try to get raw via rawBody or fallback
-			bodyStr = (req as any).rawBody?.toString?.('utf-8') ?? '';
+			bodyStr =
+				((req as Record<string, unknown>).rawBody as Buffer | undefined)?.toString?.('utf-8') ?? '';
+		}
+
+		const MAX_BODY_SIZE = 1024 * 1024; // 1 MB
+		if (Buffer.byteLength(bodyStr, 'utf-8') > MAX_BODY_SIZE) {
+			throw new NodeOperationError(this.getNode(), 'Request body exceeds 1 MB limit');
 		}
 
 		let parsedOperation = '';
@@ -165,9 +172,7 @@ export class QuickBooksDesktopTrigger implements INodeType {
 				timestamp: new Date().toISOString(),
 			};
 
-			result.workflowData = [
-				this.helpers.returnJsonArray([workflowItem]),
-			];
+			result.workflowData = [this.helpers.returnJsonArray([workflowItem])];
 		}
 
 		return result;
