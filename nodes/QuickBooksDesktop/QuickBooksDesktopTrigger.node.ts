@@ -8,6 +8,7 @@ import type {
 } from 'n8n-workflow';
 import { NodeConnectionTypes, NodeOperationError } from 'n8n-workflow';
 import { createSoapRouter } from './lib/soap';
+import { parseQbxmlResponse } from './lib/qbxmlParser';
 import { createSession, validateTicket, closeSession } from './lib/session';
 import {
 	dequeueNextJob,
@@ -152,21 +153,22 @@ export class QuickBooksDesktopTrigger implements INodeType {
 			workflowData: [this.helpers.returnJsonArray([{ body: response }])],
 		};
 
-		if (parsedOperation === 'receiveResponseXML') {
+		if (parsedOperation === 'sendRequestXML') {
+			result.workflowData = [this.helpers.returnJsonArray([{ responseType: 'sendRequestXML' }])];
+		} else if (parsedOperation === 'receiveResponseXML') {
 			const ticket = parsedArgs.ticket as string;
 			const responseXml = (parsedArgs.response as string) ?? '';
 			const hresult = (parsedArgs.hresult as string) ?? '';
 			const message = (parsedArgs.message as string) ?? '';
 
 			const job = getJobByTicket(ticket);
+			const parsed = parseQbxmlResponse(responseXml);
 
 			const workflowItem: IDataObject = {
-				body: response,
-				operation: 'receiveResponseXML',
+				...parsed,
 				ticket,
 				hresult,
 				message,
-				responseXml,
 				jobId: job?.id ?? null,
 				qbxml: job?.qbxml ?? null,
 				timestamp: new Date().toISOString(),
@@ -234,6 +236,8 @@ function buildHandlers(ctx: HandlerContext): Record<string, SoapHandler> {
 		},
 
 		async sendRequestXML(args) {
+			ctx.onOperation('sendRequestXML', args);
+
 			const ticket = args.ticket as string;
 			const session = validateTicket(ticket);
 			if (!session) {
