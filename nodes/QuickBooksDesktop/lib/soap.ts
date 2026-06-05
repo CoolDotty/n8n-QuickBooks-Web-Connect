@@ -76,7 +76,7 @@ function parseRequest(xml: string): ParsedRequest {
 		operationFull = opMatch[1];
 		innerXml = opMatch[2];
 	} else {
-		opMatch = bodyContent.match(/<([A-Za-z_][\w:]*)\b[^>]*\/>/);
+		opMatch = bodyContent.match(/<([A-Za-z_][\w:]*)\b[^>]*?\/>/);
 		if (!opMatch) throw new Error('No operation element in Body');
 		operationFull = opMatch[1];
 	}
