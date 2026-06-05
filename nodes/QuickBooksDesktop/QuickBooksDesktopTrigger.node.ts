@@ -43,13 +43,19 @@ export class QuickBooksDesktopTrigger implements INodeType {
 			{
 				name: 'default',
 				httpMethod: 'GET',
-				responseMode: 'onReceived',
+				responseMode: 'lastNode',
+				responseData: 'firstEntryJson',
+				responsePropertyName: 'body',
+				responseContentType: 'text/xml',
 				path: 'quickbooks-desktop',
 			},
 			{
 				name: 'default',
 				httpMethod: 'POST',
-				responseMode: 'onReceived',
+				responseMode: 'lastNode',
+				responseData: 'firstEntryJson',
+				responsePropertyName: 'body',
+				responseContentType: 'text/xml',
 				path: 'quickbooks-desktop',
 			},
 		],
@@ -92,11 +98,7 @@ export class QuickBooksDesktopTrigger implements INodeType {
 
 		if (method === 'GET') {
 			return {
-				webhookResponse: {
-					status: 200,
-					body: WSDL,
-					headers: { 'Content-Type': 'text/xml; charset=utf-8' },
-				},
+				workflowData: [this.helpers.returnJsonArray([{ body: WSDL }])],
 			};
 		}
 
@@ -128,12 +130,8 @@ export class QuickBooksDesktopTrigger implements INodeType {
 		const router = createSoapRouter(handlers);
 		const response = await router.handle(body);
 
-		const soapResponse: IWebhookResponseData = {
-			webhookResponse: {
-				status: 200,
-				body: response,
-				headers: { 'Content-Type': 'text/xml; charset=utf-8' },
-			},
+		const result: IWebhookResponseData = {
+			workflowData: [this.helpers.returnJsonArray([{ body: response }])],
 		};
 
 		if (parsedOperation === 'receiveResponseXML') {
@@ -145,6 +143,7 @@ export class QuickBooksDesktopTrigger implements INodeType {
 			const job = getJobByTicket(ticket);
 
 			const workflowItem: IDataObject = {
+				body: response,
 				operation: 'receiveResponseXML',
 				ticket,
 				hresult,
@@ -155,12 +154,12 @@ export class QuickBooksDesktopTrigger implements INodeType {
 				timestamp: new Date().toISOString(),
 			};
 
-			soapResponse.workflowData = [
+			result.workflowData = [
 				this.helpers.returnJsonArray([workflowItem]),
 			];
 		}
 
-		return soapResponse;
+		return result;
 	}
 
 	webhookMethods = {
