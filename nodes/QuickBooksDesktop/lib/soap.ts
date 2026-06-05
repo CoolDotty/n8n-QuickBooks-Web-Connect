@@ -67,11 +67,20 @@ function parseRequest(xml: string): ParsedRequest {
 	if (!bodyMatch) throw new Error('No Body');
 	const bodyContent = bodyMatch[1];
 
-	const opMatch = bodyContent.match(/<([A-Za-z_][\w:]*)\b[^>]*>([\s\S]*?)<\/\1>/);
-	if (!opMatch) throw new Error('No operation element in Body');
+	// Try open/close tag first, then self-closing (e.g. <serverVersion />)
+	let opMatch = bodyContent.match(/<([A-Za-z_][\w:]*)\b[^>]*>([\s\S]*?)<\/\1>/);
+	let innerXml = '';
+	let operationFull: string;
 
-	const operationFull = opMatch[1];
-	const innerXml = opMatch[2];
+	if (opMatch) {
+		operationFull = opMatch[1];
+		innerXml = opMatch[2];
+	} else {
+		opMatch = bodyContent.match(/<([A-Za-z_][\w:]*)\b[^>]*\/>/);
+		if (!opMatch) throw new Error('No operation element in Body');
+		operationFull = opMatch[1];
+	}
+
 	const operation = stripPrefix(operationFull);
 
 	const args = parseArgs(innerXml);
