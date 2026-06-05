@@ -42,13 +42,13 @@ export class QuickBooksDesktopTrigger implements INodeType {
 				name: 'default',
 				httpMethod: 'GET',
 				responseMode: 'onReceived',
-				path: '={{$parameter["path"]}}',
+				path: 'quickbooks-desktop',
 			},
 			{
 				name: 'default',
 				httpMethod: 'POST',
 				responseMode: 'onReceived',
-				path: '={{$parameter["path"]}}',
+				path: 'quickbooks-desktop',
 			},
 		],
 		credentials: [
