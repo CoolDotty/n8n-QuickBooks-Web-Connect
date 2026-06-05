@@ -164,7 +164,7 @@ export class QuickBooksDesktopTrigger implements INodeType {
 	webhookMethods = {
 		default: {
 			checkExists: async function (this: IHookFunctions): Promise<boolean> {
-				return true;
+				return false;
 			},
 			create: async function (this: IHookFunctions): Promise<boolean> {
 				return true;
