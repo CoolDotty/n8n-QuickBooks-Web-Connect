@@ -124,8 +124,6 @@ export class QuickBooksDesktopTrigger implements INodeType {
 			bodyStr = (req as any).rawBody?.toString?.('utf-8') ?? '';
 		}
 
-		console.log('QBWC webhook body type:', typeof req.body, 'rawBody:', typeof (req as any).rawBody, 'length:', bodyStr.length, 'preview:', bodyStr.substring(0, 200));
-
 		let parsedOperation = '';
 		let parsedArgs: Record<string, unknown> = {};
 
