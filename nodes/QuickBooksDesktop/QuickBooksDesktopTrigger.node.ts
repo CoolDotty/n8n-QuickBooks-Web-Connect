@@ -131,7 +131,7 @@ export class QuickBooksDesktopTrigger implements INodeType {
 				((req as Record<string, unknown>).rawBody as Buffer | undefined)?.toString?.('utf-8') ?? '';
 		}
 
-		const MAX_BODY_SIZE = 1024 * 1024; // 1 MB
+		const MAX_BODY_SIZE = 10 * 1024 * 1024; // 10 MB
 		if (Buffer.byteLength(bodyStr, 'utf-8') > MAX_BODY_SIZE) {
 			throw new NodeOperationError(this.getNode(), 'Request body exceeds 1 MB limit');
 		}

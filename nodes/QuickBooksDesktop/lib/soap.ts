@@ -17,7 +17,7 @@
  */
 
 const TNS = 'http://developer.intuit.com/';
-const MAX_BODY_SIZE = 1024 * 1024; // 1 MB
+const MAX_BODY_SIZE = 10 * 1024 * 1024; // 10 MB
 
 type Handler = (args: Record<string, unknown>) => Promise<unknown>;
 
