@@ -93,7 +93,11 @@ export class QuickBooksDesktopTrigger implements INodeType {
 
 	async webhook(this: IWebhookFunctions): Promise<IWebhookResponseData> {
 		const req = this.getRequestObject();
+		const res = this.getResponseObject();
 		const method = req.method;
+
+		// Ensure all responses are served as XML, not JSON
+		res.setHeader('Content-Type', 'text/xml; charset=utf-8');
 
 		if (method === 'GET') {
 			return {
@@ -154,7 +158,9 @@ export class QuickBooksDesktopTrigger implements INodeType {
 		};
 
 		if (parsedOperation === 'sendRequestXML') {
-			result.workflowData = [this.helpers.returnJsonArray([{ responseType: 'sendRequestXML', body: response }])];
+			result.workflowData = [
+				this.helpers.returnJsonArray([{ responseType: 'sendRequestXML', body: response }]),
+			];
 		} else if (parsedOperation === 'receiveResponseXML') {
 			const ticket = parsedArgs.ticket as string;
 			const responseXml = (parsedArgs.response as string) ?? '';
