@@ -59,7 +59,9 @@ const KNOWN_TYPES: Set<string> = new Set(['CustomerQueryRs', 'ItemQueryRs', 'Hos
 // ---------------------------------------------------------------------------
 
 export function parseQbxmlResponse(xml: string): ParsedQbxmlResponse {
-	const cleaned = xml.replace(/^\uFEFF/, '').trim();
+	const cleaned = String(xml ?? '')
+		.replace(/^\uFEFF/, '')
+		.trim();
 
 	// The *Rs element inside <QBXMLMsgsRs> carries the response type.
 	const rsMatch = cleaned.match(/<(?!QBXMLMsgsRs\b)([A-Za-z_]\w*Rs)\b[^>]*>/);
