@@ -50,7 +50,7 @@ export class QuickBooksDesktopTrigger implements INodeType {
 			{
 				name: 'default',
 				httpMethod: 'POST',
-				responseMode: 'lastNode',
+				responseMode: 'onReceived',
 				responseData: 'firstEntryJson',
 				responsePropertyName: 'body',
 				responseContentType: 'text/xml',
@@ -154,7 +154,7 @@ export class QuickBooksDesktopTrigger implements INodeType {
 		};
 
 		if (parsedOperation === 'sendRequestXML') {
-			result.workflowData = [this.helpers.returnJsonArray([{ responseType: 'sendRequestXML' }])];
+			result.workflowData = [this.helpers.returnJsonArray([{ responseType: 'sendRequestXML', body: response }])];
 		} else if (parsedOperation === 'receiveResponseXML') {
 			const ticket = parsedArgs.ticket as string;
 			const responseXml = (parsedArgs.response as string) ?? '';
@@ -166,6 +166,7 @@ export class QuickBooksDesktopTrigger implements INodeType {
 
 			const workflowItem: IDataObject = {
 				...parsed,
+				body: response,
 				ticket,
 				hresult,
 				message,
