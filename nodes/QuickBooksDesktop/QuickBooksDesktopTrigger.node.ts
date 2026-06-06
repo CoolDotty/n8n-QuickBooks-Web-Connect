@@ -50,7 +50,7 @@ export class QuickBooksDesktopTrigger implements INodeType {
 			{
 				name: 'default',
 				httpMethod: 'POST',
-				responseMode: 'onReceived',
+				responseMode: 'lastNode',
 				responseData: 'firstEntryJson',
 				responsePropertyName: 'body',
 				responseContentType: 'text/xml',
