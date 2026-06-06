@@ -52,11 +52,7 @@ export interface ParsedQbxmlResponse {
 // Known response-type set – add new types here as support grows
 // ---------------------------------------------------------------------------
 
-const KNOWN_TYPES: Set<string> = new Set([
-	'CustomerQueryRs',
-	'ItemQueryRs',
-	'HostQueryRs',
-]);
+const KNOWN_TYPES: Set<string> = new Set(['CustomerQueryRs', 'ItemQueryRs', 'HostQueryRs']);
 
 // ---------------------------------------------------------------------------
 // Public entry-point
@@ -65,8 +61,8 @@ const KNOWN_TYPES: Set<string> = new Set([
 export function parseQbxmlResponse(xml: string): ParsedQbxmlResponse {
 	const cleaned = xml.replace(/^\uFEFF/, '').trim();
 
-	// The first *Rs element inside <QBXMLMsgsRs> carries the response type.
-	const rsMatch = cleaned.match(/<([A-Za-z_]\w*Rs)\b[^>]*>/);
+	// The *Rs element inside <QBXMLMsgsRs> carries the response type.
+	const rsMatch = cleaned.match(/<(?!QBXMLMsgsRs\b)([A-Za-z_]\w*Rs)\b[^>]*>/);
 	if (!rsMatch) {
 		return { responseType: 'unknown', rawBody: cleaned };
 	}
@@ -116,24 +112,24 @@ export function parseQbxmlResponse(xml: string): ParsedQbxmlResponse {
 
 function parseCustomerRet(xml: string): CustomerRecord {
 	return {
-		listId:   extractElement(xml, 'ListID'),
+		listId: extractElement(xml, 'ListID'),
 		fullName: extractElement(xml, 'FullName'),
-		name:     extractElement(xml, 'Name'),
+		name: extractElement(xml, 'Name'),
 		isActive: extractElement(xml, 'IsActive'),
-		email:    extractElement(xml, 'Email'),
-		phone:    extractElement(xml, 'Phone'),
+		email: extractElement(xml, 'Email'),
+		phone: extractElement(xml, 'Phone'),
 	};
 }
 
 function parseItemRet(xml: string): ItemRecord {
 	return {
-		listId:      extractElement(xml, 'ListID'),
-		fullName:    extractElement(xml, 'FullName'),
-		name:        extractElement(xml, 'Name'),
-		upc:         extractElement(xml, 'UPC'),
+		listId: extractElement(xml, 'ListID'),
+		fullName: extractElement(xml, 'FullName'),
+		name: extractElement(xml, 'Name'),
+		upc: extractElement(xml, 'UPC'),
 		description: extractElement(xml, 'SalesDesc'),
-		salesPrice:  extractElement(xml, 'SalesPrice'),
-		isActive:    extractElement(xml, 'IsActive'),
+		salesPrice: extractElement(xml, 'SalesPrice'),
+		isActive: extractElement(xml, 'IsActive'),
 	};
 }
 
